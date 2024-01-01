@@ -16,6 +16,15 @@ export default function Home() {
   const [listToShow, setListToShow] = useState("watchedList");
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
 
+  const [userLoginInfo, setUserLoginInfo] = useState(
+    localStorage.getItem("userLoginInfo")
+      ? JSON.parse(localStorage.getItem("userLoginInfo"))
+      : null,
+  );
+
+  //! ============userLoginInfo=================
+  console.log(userLoginInfo);
+
   const handleShowProfileEditModal = function () {
     setShowSidebar(false);
     setShowProfileEditModal(true);
@@ -35,7 +44,7 @@ export default function Home() {
   }, [showLogin, showRegistration, showSidebar]);
 
   return (
-    <div className="bg-bg-color font-roboto min-h-screen px-2 pt-5 md:px-4 lg:px-6">
+    <div className="min-h-screen bg-bg-color px-2 pt-5 font-roboto md:px-4 lg:px-6">
       <Navbar onShowLogin={setShowLogin} onShowSidebar={setShowSidebar} />
       <SideBar
         showSidebar={showSidebar}
@@ -54,6 +63,7 @@ export default function Home() {
             <Login
               onShowLogin={setShowLogin}
               onShowregistration={setShowRegistration}
+              onUserLogin={setUserLoginInfo}
             />
           )}
           {showRegistration && (
@@ -65,7 +75,7 @@ export default function Home() {
         </AccountInputBox>
       )}
 
-      <div className="text-text-color mt-4 grid h-full grid-cols-[1.25fr_2fr] gap-x-4">
+      <div className="mt-4 grid h-full grid-cols-[1.25fr_2fr] gap-x-4 text-text-color">
         <ListBox>
           <SearchList />
         </ListBox>
@@ -82,7 +92,7 @@ export default function Home() {
 
 function ListBox({ children }) {
   return (
-    <div className="bg-bg-color-lighter h-[calc(100vh-8.5rem)] rounded-lg px-4 pt-2 shadow-lg">
+    <div className="h-[calc(100vh-8.5rem)] rounded-lg bg-bg-color-lighter px-4 pt-2 shadow-lg">
       {children}
     </div>
   );

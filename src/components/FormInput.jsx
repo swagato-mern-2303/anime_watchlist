@@ -6,6 +6,9 @@ export default function FormInput({
   labelText = "label text",
   type = "text",
   placeholder = "placeholder",
+  onChange,
+  value,
+  error,
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -28,6 +31,8 @@ export default function FormInput({
             type === "password" ? (showPassword ? "text" : "password") : type
           }
           placeholder={placeholder}
+          value={value}
+          onChange={(e) => onChange(e)}
         />
         {type === "password" && (
           <button
@@ -39,6 +44,7 @@ export default function FormInput({
           </button>
         )}
       </div>
+      <p className="text-red-400">{error}</p>
     </div>
   );
 }
