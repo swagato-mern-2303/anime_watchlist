@@ -1,17 +1,28 @@
 import { ImCross } from "react-icons/im";
 import { FiEdit } from "react-icons/fi";
-import placeholderImg from "../assets/placeholder-img.png";
-
-const user = {
-  name: "Swgoto Sarowar",
-  img: placeholderImg,
-};
+import { useDispatch, useSelector } from "react-redux";
+import { userLoginInfo } from "../slices/userSlice";
 
 export default function Sidebar({
   showSidebar,
   onShowSidebar,
+  onShowLogin,
   onShowProfileEditModal,
 }) {
+  const dispatch = useDispatch();
+
+  const currentUserData = useSelector((state) => state.user.userInfo);
+
+  const handleLogout = function () {
+    dispatch(userLoginInfo(null));
+    localStorage.removeItem("userLoginInfo");
+  };
+
+  const handleLogIn = function () {
+    onShowLogin(true);
+    onShowSidebar(false);
+  };
+
   return (
     <>
       <div
@@ -25,33 +36,58 @@ export default function Sidebar({
         }`}
       >
         <button
-          className="absolute left-6 top-8 p-3 text-xl"
+          className="absolute right-6 top-8 p-3 text-xl"
           onClick={() => onShowSidebar(false)}
         >
           <ImCross />
         </button>
-        <div className="flex flex-col items-center gap-y-12 pt-20">
-          <div className="flex flex-col items-center gap-y-2">
-            <img className="w-28" src={user.img} alt="" />
-            <h4 className="text-xl">{user.name}</h4>
+        <div className="mt-20 flex flex-col items-center">
+          <div className="flex flex-col items-center gap-y-10">
+            {currentUserData ? (
+              <>
+                <img
+                  className="w-36 rounded-full"
+                  src={currentUserData.photoURL}
+                  alt=""
+                />
+                <h4 className="text-3xl font-medium">
+                  {currentUserData.displayName}
+                </h4>
+              </>
+            ) : (
+              <>
+                <div className="flex aspect-square w-36 items-center justify-center rounded-full bg-green-600">
+                  <p className="text-7xl">A</p>
+                </div>
+                <h4 className="text-xl">Anonymous</h4>
+              </>
+            )}
             <div className="flex items-center gap-x-2">
-              <button className="rounded-lg bg-red-600 px-4 py-2 duration-200 hover:bg-red-700">
-                Logout
-              </button>
-              <button
-                className="p-2 text-2xl text-blue-100 duration-200 hover:text-blue-400"
-                onClick={() => onShowProfileEditModal(true)}
-              >
-                <FiEdit />
-              </button>
+              {currentUserData ? (
+                <>
+                  <button
+                    className="rounded-lg bg-red-600 px-4 py-2 duration-200 hover:bg-red-700"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                  <button
+                    className="p-2 text-2xl text-blue-100 duration-200 hover:text-blue-400"
+                    onClick={() => onShowProfileEditModal(true)}
+                  >
+                    <FiEdit />
+                  </button>
+                </>
+              ) : (
+                <button
+                  className="rounded-lg bg-blue-600 px-4 py-2 duration-200 hover:bg-blue-800"
+                  onClick={handleLogIn}
+                >
+                  Login
+                </button>
+              )}
             </div>
           </div>
-          <ul className="w-full">
-            <li>Watch Later</li>
-            <li>Already Watched</li>
-            <li>Home</li>
-            <li>Settings</li>
-          </ul>
         </div>
       </div>
     </>

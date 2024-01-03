@@ -1,14 +1,29 @@
 import navLogo from "../assets/logo2.png";
-// import placeholderImg from "../assets/placeholder-img.png";
 import { FaBars, FaSearch, FaTimes } from "react-icons/fa";
 import Button from "./Button";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
-export default function Navbar({ onShowLogin, onShowSidebar }) {
-  const [showSearch, setShowSearch] = useState(false);
+export default function Navbar({
+  onShowLogin,
+  onShowSidebar,
+  showSearch,
+  onShowSearch,
+  onSearch,
+}) {
+  const [search, setSearch] = useState("naruto");
+
+  const currentUserData = useSelector((state) => state.user.userInfo);
+
+  const handleSubmit = function (e) {
+    e.preventDefault();
+    if (!search) return;
+    onSearch(search);
+    setSearch("");
+  };
 
   return (
-    <div className="bg-primary-color text-text-color rounded-lg px-2 py-4 md:px-4 lg:px-6">
+    <div className="rounded-lg bg-primary-color px-2 py-4 text-text-color md:px-4 lg:px-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-x-2 md:gap-x-4 lg:gap-x-6">
           <button onClick={() => onShowSidebar(true)}>
@@ -20,7 +35,7 @@ export default function Navbar({ onShowLogin, onShowSidebar }) {
               src={navLogo}
               alt=""
             />
-            <div className="font-obitron text-center text-sm text-blue-950 md:text-lg lg:text-xl [&>*]:leading-none">
+            <div className="text-center font-obitron text-sm text-blue-950 md:text-lg lg:text-xl [&>*]:leading-none">
               <p>
                 A <span className="text-sm text-blue-200/80">for</span>
               </p>
@@ -30,10 +45,15 @@ export default function Navbar({ onShowLogin, onShowSidebar }) {
         </div>
 
         <div className="hidden md:block">
-          <form className="flex w-full gap-x-2">
+          <form
+            className="flex w-full gap-x-2"
+            onSubmit={(e) => handleSubmit(e)}
+          >
             <SearchInput
               className="w-[20rem] lg:w-[25rem]"
               placeholder="Search for anime..."
+              search={search}
+              onSetSearch={setSearch}
             />
             <Button>
               <FaSearch />
@@ -44,18 +64,21 @@ export default function Navbar({ onShowLogin, onShowSidebar }) {
         <div className="flex gap-x-2 md:gap-x-4 lg:gap-x-6">
           <Button
             className="md:hidden"
-            onClick={() => setShowSearch((show) => !show)}
+            onClick={() => onShowSearch((show) => !show)}
           >
             {showSearch ? <FaTimes /> : <FaSearch />}
           </Button>
-          {/* {user?.id ? (
-            <div className="w-[2.5rem] lg:w-[3.2rem]">
-              <img src={user.img} alt="" />
+          {currentUserData ? (
+            <div className="h-[2.5rem] w-[2.5rem] rounded-full lg:h-[3.2rem] lg:w-[3.2rem]">
+              <img
+                className="w-full rounded-full"
+                src={currentUserData.photoURL}
+                alt="user profile image"
+              />
             </div>
           ) : (
             <Button onClick={() => onShowLogin(true)}>Login</Button>
-          )} */}
-          <Button onClick={() => onShowLogin(true)}>Login</Button>
+          )}
         </div>
       </div>
 
@@ -64,8 +87,13 @@ export default function Navbar({ onShowLogin, onShowSidebar }) {
           showSearch ? "flex" : "hidden"
         }`}
       >
-        <form className="flex w-full gap-x-2">
-          <SearchInput className="w-full" placeholder="Search for anime..." />
+        <form className="flex w-full gap-x-2" onSubmit={(e) => handleSubmit(e)}>
+          <SearchInput
+            className="w-full"
+            placeholder="Search for anime..."
+            search={search}
+            onSetSearch={setSearch}
+          />
           <Button>
             <FaSearch />
           </Button>
@@ -75,12 +103,14 @@ export default function Navbar({ onShowLogin, onShowSidebar }) {
   );
 }
 
-function SearchInput({ className, placeholder }) {
+function SearchInput({ className, placeholder, onSetSearch, search }) {
   return (
     <input
-      className={`bg-primary-color-lighter placeholder:text-text-dark-color rounded-md px-4 py-2 text-xl font-medium transition duration-200 focus:-translate-y-[2px] focus:shadow-[0px_5px_10px_0_rgba(0,0,0,0.2)] focus-visible:outline-none ${className}`}
+      className={`rounded-md bg-primary-color-lighter px-4 py-2 text-xl font-medium transition duration-200 placeholder:text-text-dark-color focus:-translate-y-[2px] focus:shadow-[0px_5px_10px_0_rgba(0,0,0,0.2)] focus-visible:outline-none ${className}`}
       type="text"
       placeholder={placeholder}
+      value={search}
+      onChange={(e) => onSetSearch(e.target.value)}
     />
   );
 }

@@ -7,9 +7,12 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import { Flip, ToastContainer, toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { userLoginInfo } from "../slices/userSlice";
 
-function Login({ onShowregistration, onShowLogin, onUserLogin }) {
+function Login({ onShowregistration, onShowLogin }) {
   const auth = getAuth();
+  const dispatch = useDispatch();
 
   const [verified, setVerified] = useState(false);
 
@@ -60,7 +63,7 @@ function Login({ onShowregistration, onShowLogin, onUserLogin }) {
       )
         .then((userCredential) => {
           if (verified) {
-            onUserLogin(userCredential.user);
+            dispatch(userLoginInfo(userCredential.user));
             localStorage.setItem(
               "userLoginInfo",
               JSON.stringify(userCredential.user),
@@ -72,7 +75,6 @@ function Login({ onShowregistration, onShowLogin, onUserLogin }) {
           }
         })
         .catch((error) => {
-          console.log(error.code);
           error.code.includes("auth/invalid-credential") &&
             toast.error("Invalid email and password combination");
         });

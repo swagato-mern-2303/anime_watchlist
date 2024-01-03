@@ -4,6 +4,8 @@ import App from "./App.jsx";
 import "./index.css";
 import "react-toastify/dist/ReactToastify.css";
 import { initializeApp } from "firebase/app";
+import store from "./store.jsx";
+import { Provider } from "react-redux";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA5ycbZHtqx1YuEeQFQxjQJ1Q4jivvgoUE",
@@ -18,6 +20,8 @@ initializeApp(firebaseConfig);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <App />
+    </Provider>
   </React.StrictMode>,
 );
