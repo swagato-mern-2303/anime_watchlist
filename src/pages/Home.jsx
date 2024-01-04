@@ -11,6 +11,9 @@ import ProfileEditModal from "../components/ProfileEditModal";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { userLoginInfo } from "../slices/userSlice";
+import SelectedAnimeDetails from "../components/SelectedAnimeDetails";
+import Loader from "../components/Loader";
+import Error from "../components/Error";
 
 export default function Home() {
   const auth = getAuth();
@@ -24,6 +27,9 @@ export default function Home() {
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
   const [searchAnimeList, setSearchAnimeList] = useState([]);
   const [windowWidth, setWindowWidth] = useState(null);
+  const [selectedAnimeId, setSelectedAnimeId] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleShowProfileEditModal = function () {
     setShowSidebar(false);
@@ -37,20 +43,30 @@ export default function Home() {
   };
 
   const handleSearch = function (animeName) {
+    setSearchAnimeList([]);
+    if (windowWidth < 768) {
+      setListToShow("searchList");
+    }
     async function getAnimeList() {
       try {
+        setIsLoading(true);
+        setError("");
+
         const response = await fetch(
-          `https://api.jikan.moe/v4/anime?q=${animeName}&sfw`,
+          `https://api.jikan.moe/v4/anime?q=${animeName}`,
         );
+        if (!response.ok)
+          throw new Error("Something went wrong while loading the data");
+
         const data = await response.json();
+        if (!data.data.length) throw new Error("Anime not found");
+
         setSearchAnimeList(data.data);
+        setError("");
       } catch (err) {
-        console.log(err);
+        setError(err.message);
       } finally {
-        if (windowWidth < 768) {
-          console.log("hello");
-          setListToShow("searchList");
-        }
+        setIsLoading(false);
       }
     }
     getAnimeList();
@@ -75,7 +91,7 @@ export default function Home() {
   }, [auth, dispatch]);
 
   return (
-    <div className="min-h-screen bg-bg-color px-2 pt-5 font-roboto md:px-4 lg:px-6">
+    <div className="min-h-screen bg-bg-color-darker px-2 pt-5 font-roboto md:px-4 lg:px-6">
       <Navbar
         onShowLogin={setShowLogin}
         onShowSidebar={setShowSidebar}
@@ -115,22 +131,49 @@ export default function Home() {
       <div className="mt-4 h-full grid-cols-[1.25fr_2fr] gap-x-4 text-text-color md:grid">
         <div className="hidden md:block">
           <ListBox showSearch={showSearch}>
-            <SearchList searchAnimeList={searchAnimeList} />
+            {isLoading ? (
+              <Loader />
+            ) : error ? (
+              <Error error={error} />
+            ) : (
+              <SearchList
+                searchAnimeList={searchAnimeList}
+                onSelectAnime={setSelectedAnimeId}
+              />
+            )}
           </ListBox>
         </div>
 
         <div>
-          <ListBox showSearch={showSearch}>
-            <ListToShowBox
-              listToShow={listToShow}
-              onListToShow={setListToShow}
-            />
-            {listToShow === "searchList" && (
-              <SearchList searchAnimeList={searchAnimeList} />
-            )}
-            {listToShow === "watchedList" && <WatchedList />}
-            {listToShow === "watchLater" && <WatchLaterList />}
-          </ListBox>
+          {selectedAnimeId ? (
+            <ListBox showSearch={showSearch}>
+              <SelectedAnimeDetails
+                selectedId={selectedAnimeId}
+                onSelectedId={setSelectedAnimeId}
+              />
+            </ListBox>
+          ) : (
+            <ListBox showSearch={showSearch}>
+              <ListToShowBox
+                listToShow={listToShow}
+                onListToShow={setListToShow}
+              />
+              {listToShow === "searchList" ? (
+                isLoading ? (
+                  <Loader />
+                ) : error ? (
+                  <Error error={error} />
+                ) : (
+                  <SearchList
+                    searchAnimeList={searchAnimeList}
+                    onSelectAnime={setSelectedAnimeId}
+                  />
+                )
+              ) : null}
+              {listToShow === "watchedList" && <WatchedList />}
+              {listToShow === "watchLater" && <WatchLaterList />}
+            </ListBox>
+          )}
         </div>
       </div>
     </div>
@@ -140,8 +183,8 @@ export default function Home() {
 function ListBox({ showSearch, children }) {
   return (
     <div
-      className={`rounded-lg bg-bg-color-lighter px-4 pt-2 shadow-lg ${
-        showSearch ? "h-[calc(100vh-11rem)]" : "h-[calc(100vh-8.5rem)]"
+      className={`rounded-lg bg-bg-color px-4 pt-2 shadow-lg ${
+        showSearch ? "h-[calc(100vh-12rem)]" : "h-[calc(100vh-8.5rem)]"
       }`}
     >
       {children}
