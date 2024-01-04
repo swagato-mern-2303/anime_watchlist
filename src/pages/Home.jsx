@@ -75,7 +75,7 @@ export default function Home() {
   }, [auth, dispatch]);
 
   return (
-    <div className="min-h-[100dvh] bg-bg-color px-2 pt-5 font-roboto md:px-4 lg:px-6">
+    <div className="min-h-screen bg-bg-color px-2 pt-5 font-roboto md:px-4 lg:px-6">
       <Navbar
         onShowLogin={setShowLogin}
         onShowSidebar={setShowSidebar}
@@ -141,7 +141,7 @@ function ListBox({ showSearch, children }) {
   return (
     <div
       className={`rounded-lg bg-bg-color-lighter px-4 pt-2 shadow-lg ${
-        showSearch ? "h-[calc(100dvh-11rem)]" : "h-[calc(100dvh-8.5rem)]"
+        showSearch ? "h-[calc(100vh-11rem)]" : "h-[calc(100vh-8.5rem)]"
       }`}
     >
       {children}

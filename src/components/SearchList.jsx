@@ -2,7 +2,7 @@ export default function SearchList({ searchAnimeList }) {
   console.log(searchAnimeList[0]);
 
   return (
-    <div className="flex h-full flex-col gap-y-4 overflow-y-scroll">
+    <div className="flex h-[calc(100%-4rem)] flex-col gap-y-4 overflow-y-scroll md:h-full">
       {searchAnimeList.map((item, index) => (
         <Anime key={index} data={item} />
       ))}
