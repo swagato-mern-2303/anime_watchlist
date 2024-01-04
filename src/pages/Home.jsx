@@ -140,8 +140,8 @@ export default function Home() {
 function ListBox({ showSearch, children }) {
   return (
     <div
-      className={`relative rounded-lg bg-bg-color-lighter px-4 pt-2 shadow-lg ${
-        showSearch ? "h-[calc(100vh-11rem)]" : "h-[calc(100vh-8.5rem)]"
+      className={`rounded-lg bg-bg-color-lighter px-4 pt-2 shadow-lg ${
+        showSearch ? "h-[calc(100svh-11rem)]" : "h-[calc(100svh-8.5rem)]"
       }`}
     >
       {children}
