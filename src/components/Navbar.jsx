@@ -10,6 +10,7 @@ export default function Navbar({
   showSearch,
   onShowSearch,
   onSearch,
+  onSelectedId,
 }) {
   const [search, setSearch] = useState("naruto");
 
@@ -20,15 +21,13 @@ export default function Navbar({
     if (!search) return;
     onSearch(search);
     setSearch("");
+    onSelectedId("");
   };
 
   return (
     <div className="rounded-lg bg-primary-color px-2 py-4 text-text-color md:px-4 lg:px-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-x-2 md:gap-x-4 lg:gap-x-6">
-          <button onClick={() => onShowSidebar(true)}>
-            <FaBars size={28} />
-          </button>
           <div className="flex items-center">
             <img
               className="w-[2rem] md:w-[2.5rem] lg:w-[3.2rem]"
@@ -69,7 +68,10 @@ export default function Navbar({
             {showSearch ? <FaTimes /> : <FaSearch />}
           </Button>
           {currentUserData ? (
-            <div className="h-[2.5rem] w-[2.5rem] rounded-full lg:h-[3.2rem] lg:w-[3.2rem]">
+            <div
+              className="h-[2.5rem] w-[2.5rem] cursor-pointer rounded-full duration-200 hover:-translate-y-[2px] hover:shadow-[0px_5px_10px_0_rgba(0,0,0,0.2)] lg:h-[3.2rem] lg:w-[3.2rem]"
+              onClick={() => onShowSidebar(true)}
+            >
               <img
                 className="w-full rounded-full"
                 src={currentUserData.photoURL}

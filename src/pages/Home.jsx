@@ -98,6 +98,7 @@ export default function Home() {
         showSearch={showSearch}
         onShowSearch={setShowSearch}
         onSearch={handleSearch}
+        onSelectedId={setSelectedAnimeId}
       />
       <SideBar
         showSidebar={showSidebar}

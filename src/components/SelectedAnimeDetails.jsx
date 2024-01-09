@@ -3,18 +3,37 @@ import Error from "./Error";
 import Loader from "./Loader";
 import { TiArrowBack } from "react-icons/ti";
 import StarRating from "./StarRating";
+import { useSelector } from "react-redux";
+import { getDatabase, onValue, push, ref } from "firebase/database";
 
 export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
+  const db = getDatabase();
+
+  const currentUserData = useSelector((state) => state.user.userInfo);
+
   const [animeDetails, setAnimeDetails] = useState({});
+  const [watchLater, setWatchLater] = useState([]);
+  const [watchedList, setWatchedList] = useState([]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
 
-  const handleWatchLater = function () {
-    console.log("handlewatchlater");
+  const handleAddToWatchLater = function () {
+    push(ref(db, "watchLater/"), {
+      animeId: selectedId,
+      userId: currentUserData.uid,
+    }).then(() => {
+      onSelectedId("");
+    });
   };
-  const handleAddToWatchList = function () {
-    console.log("handleAddToWatchList");
+  const handleAddToWatchedList = function () {
+    push(ref(db, "watchedList/"), {
+      animeId: selectedId,
+      userId: currentUserData.uid,
+      userRating,
+    }).then(() => {
+      onSelectedId("");
+    });
   };
 
   useEffect(() => {
@@ -37,6 +56,30 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
     getAnimeDetails();
   }, [selectedId]);
 
+  useEffect(() => {
+    onValue(ref(db, "watchLater/"), (snapshot) => {
+      const arr = [];
+      snapshot.forEach((item) => {
+        item.val().userId === currentUserData.uid
+          ? arr.push(item.val().animeId)
+          : null;
+      });
+      setWatchLater(arr);
+    });
+  }, [db, currentUserData]);
+
+  useEffect(() => {
+    onValue(ref(db, "watchedList/"), (snapshot) => {
+      const arr = [];
+      snapshot.forEach((item) => {
+        item.val().userId === currentUserData.uid
+          ? arr.push(item.val().animeId)
+          : null;
+      });
+      setWatchedList(arr);
+    });
+  }, [db, currentUserData]);
+
   const genres = animeDetails.genres?.map((item) => item.name).join(" , ");
   const aired = animeDetails.aired?.string.split(" to ").at(0);
   const producers = animeDetails.producers
@@ -56,7 +99,7 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
         <div className="pb-6 md:pb-10">
           <div className="flex flex-col items-center rounded-lg bg-bg-color-lighter pb-4 shadow-lg sm:flex-row sm:pb-0">
             <img
-              className="w-48"
+              className="ml-3 w-48"
               src={animeDetails.images?.webp.image_url}
               alt={`${animeDetails.title} image`}
             />
@@ -75,11 +118,7 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
                 <em>{genres}</em>
               </p>
               <p className="flex items-center">
-                <span className="mr-2">
-                  Rating: ⭐ {animeDetails.popularity}
-                </span>
-                &bull;
-                <span className="mx-2 rounded-[4px] bg-blue-700 px-2 py-[2px] text-[0.8rem] font-bold">
+                <span className="mr-2 rounded-[4px] bg-blue-700 px-2 py-[2px] text-[0.8rem] font-bold">
                   score
                 </span>
                 {animeDetails.score}
@@ -90,17 +129,38 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
               <BackButton onClick={onSelectedId} />
             </div>
           </div>
+
           <div className="mt-10 flex flex-col gap-y-4 px-8">
-            <div className="w-[280px] self-center rounded-lg bg-bg-color-lighter px-3 py-3 sm:scale-[1.2]">
-              <StarRating
-                size={18}
-                maxRating={10}
-                onUserRating={setUserRating}
-              />
-              {userRating ? (
-                <AddtoWatchListButton onClick={handleAddToWatchList} />
+            <div className="w-[280px] self-center rounded-lg bg-bg-color-lighter px-3 py-4 sm:scale-[1.2]">
+              {currentUserData ? (
+                watchLater.includes(animeDetails.mal_id) ? (
+                  <p className="text-sm text-yellow-400">
+                    Anime already added to watch later list
+                  </p>
+                ) : watchedList.includes(animeDetails.mal_id) ? (
+                  <p className="text-sm text-yellow-400">
+                    Anime already added to watched list
+                  </p>
+                ) : (
+                  <>
+                    <StarRating
+                      size={18}
+                      maxRating={10}
+                      onUserRating={setUserRating}
+                    />
+                    {userRating ? (
+                      <AddtoWatchedListButton
+                        onClick={handleAddToWatchedList}
+                      />
+                    ) : (
+                      <WatchLaterButton onClick={handleAddToWatchLater} />
+                    )}
+                  </>
+                )
               ) : (
-                <WatchLaterButton onClick={handleWatchLater} />
+                <p className="text-center text-lg text-yellow-400">
+                  Please Login
+                </p>
               )}
             </div>
             <p className="text-sm">
@@ -108,11 +168,11 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
             </p>
             <p>
               <strong>Producers : </strong>
-              {producers}
+              {producers || "..."}
             </p>
             <p>
               <strong>Licensors : </strong>
-              {licensors}
+              {licensors || "..."}
             </p>
           </div>
         </div>
@@ -143,7 +203,7 @@ function WatchLaterButton({ onClick }) {
   );
 }
 
-function AddtoWatchListButton({ onClick }) {
+function AddtoWatchedListButton({ onClick }) {
   return (
     <button
       className="mt-3 w-full rounded-full bg-primary-color py-1 text-sm font-medium duration-200 hover:bg-blue-800"

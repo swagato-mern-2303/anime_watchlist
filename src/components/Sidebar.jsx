@@ -26,13 +26,13 @@ export default function Sidebar({
   return (
     <>
       <div
-        className={`absolute left-0 top-0 h-screen w-full bg-black/20 backdrop-blur-[0.6rem] ${
+        className={`absolute left-0 top-0 z-50 h-screen w-full bg-black/20 backdrop-blur-[0.6rem] ${
           showSidebar ? "block" : "hidden"
         }`}
       ></div>
       <div
-        className={`fixed left-0 top-0 h-screen w-[320px] overflow-y-auto bg-black/60 text-white duration-200 ${
-          showSidebar ? "-translate-x-0" : "-translate-x-full"
+        className={`fixed right-0 top-0 z-50 h-screen w-[320px] overflow-y-auto bg-black/60 text-white duration-200 ${
+          showSidebar ? "-translate-x-0" : "translate-x-full"
         }`}
       >
         <button
