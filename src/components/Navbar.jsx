@@ -1,5 +1,5 @@
 import navLogo from "../assets/logo2.png";
-import { FaBars, FaSearch, FaTimes } from "react-icons/fa";
+import { FaSearch, FaTimes } from "react-icons/fa";
 import Button from "./Button";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -12,7 +12,7 @@ export default function Navbar({
   onSearch,
   onSelectedId,
 }) {
-  const [search, setSearch] = useState("naruto");
+  const [search, setSearch] = useState("");
 
   const currentUserData = useSelector((state) => state.user.userInfo);
 

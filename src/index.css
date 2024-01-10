@@ -3,8 +3,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-.test {
-  height: 100vh;
-  background: url("../public/Screenshot_1.png");
-}

@@ -75,6 +75,7 @@ function Login({ onShowregistration, onShowLogin }) {
           }
         })
         .catch((error) => {
+          setUserInfo({ userEmail: "", userPassword: "" });
           error.code.includes("auth/invalid-credential") &&
             toast.error("Invalid email and password combination");
         });

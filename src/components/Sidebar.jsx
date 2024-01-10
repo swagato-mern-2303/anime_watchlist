@@ -16,6 +16,7 @@ export default function Sidebar({
   const handleLogout = function () {
     dispatch(userLoginInfo(null));
     localStorage.removeItem("userLoginInfo");
+    onShowSidebar(false);
   };
 
   const handleLogIn = function () {

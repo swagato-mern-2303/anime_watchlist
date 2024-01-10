@@ -26,7 +26,6 @@ export default function Home() {
   const [listToShow, setListToShow] = useState("watchedList");
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
   const [searchAnimeList, setSearchAnimeList] = useState([]);
-  const [windowWidth, setWindowWidth] = useState(null);
   const [selectedAnimeId, setSelectedAnimeId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,9 +42,10 @@ export default function Home() {
   };
 
   const handleSearch = function (animeName) {
-    setSearchAnimeList([]);
-    if (windowWidth < 768) {
+    if (window.innerWidth < 768) {
       setListToShow("searchList");
+    } else {
+      setListToShow("watchedList");
     }
     async function getAnimeList() {
       try {
@@ -78,10 +78,6 @@ export default function Home() {
       ? (body.style.overflowY = "hidden")
       : (body.style.overflowY = "auto");
   }, [showLogin, showRegistration, showSidebar]);
-
-  useEffect(() => {
-    setWindowWidth(window.innerWidth);
-  }, []);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -171,8 +167,12 @@ export default function Home() {
                   />
                 )
               ) : null}
-              {listToShow === "watchedList" && <WatchedList />}
-              {listToShow === "watchLater" && <WatchLaterList />}
+              {listToShow === "watchedList" && (
+                <WatchedList onSelectedId={setSelectedAnimeId} />
+              )}
+              {listToShow === "watchLater" && (
+                <WatchLaterList onSelectedId={setSelectedAnimeId} />
+              )}
             </ListBox>
           )}
         </div>

@@ -1,9 +1,15 @@
+import EmptyMsg from "./EmptyMsg";
+
 export default function SearchList({ searchAnimeList, onSelectAnime }) {
   return (
     <div className="flex h-[calc(100%-4rem)] flex-col gap-y-4 overflow-y-scroll md:h-full">
-      {searchAnimeList.map((item, index) => (
-        <Anime key={index} data={item} onSelectAnime={onSelectAnime} />
-      ))}
+      {searchAnimeList.length ? (
+        searchAnimeList.map((item, index) => (
+          <Anime key={index} data={item} onSelectAnime={onSelectAnime} />
+        ))
+      ) : (
+        <EmptyMsg message="Search for anime" />
+      )}
     </div>
   );
 }

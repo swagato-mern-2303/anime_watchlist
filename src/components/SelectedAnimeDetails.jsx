@@ -4,7 +4,7 @@ import Loader from "./Loader";
 import { TiArrowBack } from "react-icons/ti";
 import StarRating from "./StarRating";
 import { useSelector } from "react-redux";
-import { getDatabase, onValue, push, ref } from "firebase/database";
+import { getDatabase, onValue, set, ref, remove } from "firebase/database";
 
 export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
   const db = getDatabase();
@@ -19,7 +19,7 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
   const [userRating, setUserRating] = useState(0);
 
   const handleAddToWatchLater = function () {
-    push(ref(db, "watchLater/"), {
+    set(ref(db, "watchLater/" + selectedId), {
       animeId: selectedId,
       userId: currentUserData.uid,
     }).then(() => {
@@ -27,13 +27,17 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
     });
   };
   const handleAddToWatchedList = function () {
-    push(ref(db, "watchedList/"), {
+    set(ref(db, "watchedList/" + selectedId), {
       animeId: selectedId,
       userId: currentUserData.uid,
       userRating,
-    }).then(() => {
-      onSelectedId("");
-    });
+    })
+      .then(() => {
+        onSelectedId("");
+      })
+      .then(() => {
+        remove(ref(db, "watchLater/" + selectedId));
+      });
   };
 
   useEffect(() => {
@@ -134,9 +138,21 @@ export default function SelectedAnimeDetails({ selectedId, onSelectedId }) {
             <div className="w-[280px] self-center rounded-lg bg-bg-color-lighter px-3 py-4 sm:scale-[1.2]">
               {currentUserData ? (
                 watchLater.includes(animeDetails.mal_id) ? (
-                  <p className="text-sm text-yellow-400">
-                    Anime already added to watch later list
-                  </p>
+                  <>
+                    <p className="mb-2 text-sm text-yellow-200">
+                      Anime already added to watch later list
+                    </p>
+                    <StarRating
+                      size={18}
+                      maxRating={10}
+                      onUserRating={setUserRating}
+                    />
+                    {userRating ? (
+                      <AddtoWatchedListButton
+                        onClick={handleAddToWatchedList}
+                      />
+                    ) : null}
+                  </>
                 ) : watchedList.includes(animeDetails.mal_id) ? (
                   <p className="text-sm text-yellow-400">
                     Anime already added to watched list
